@@ -68,6 +68,7 @@ src/
     │   ├── Machines.tsx       Operating table, electrode ring, Tesla coil, console and lever, furnace
     │   ├── Props.tsx          Benches, shelves, jars, candles, lanterns, collectible items
     │   ├── Creature.tsx       GLB creature (or procedural stand-in) and awakening animation
+    │   ├── creatureRig.ts     Skeleton posing: lying, sitting up, reaching, head turn
     │   ├── Hands.tsx          Camera-attached first-person hands with reach/use animations
     │   ├── Player.tsx         Pointer-lock look, WASD with collision, raycast interaction, ending camera
     │   ├── Storm.tsx          Lightning flashes, bolts, dust
@@ -87,7 +88,11 @@ Stats are never accumulated; they are recomputed from the record of choices (`co
 
 ### 3D models
 
-Drop `frankenstein.glb` and `player-hands.glb` into `public/models/` (see `public/models/README.md`). The game detects them at runtime and falls back to procedural stand-ins when they are missing.
+The creature is `public/models/frankenstein.glb`. It is posed and animated through its skeleton (`src/game/scene/creatureRig.ts`): laid on its back with its arms at its sides, sitting up in the good ending, standing and reaching in the bad one. The first-person hands are still procedural; drop `player-hands.glb` into `public/models/` to replace them (see `public/models/README.md`).
+
+## Credits
+
+- Creature model: ["Frankenstein S Monster"](https://sketchfab.com/3d-models/frankenstein-s-monster-0e8d66cb3d4b486b9172f320f70b520f) by [ennana](https://sketchfab.com/samierh49), licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
 ### Performance notes
 

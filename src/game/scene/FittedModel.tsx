@@ -12,18 +12,27 @@ interface Props {
   align?: "bottom" | "center";
   playAnimation?: string | boolean;
   castShadow?: boolean;
+  /** Called on the cloned scene before fitting; may pose it and return the orientation to use instead of `config.rotation`. */
+  orient?: (scene: THREE.Object3D) => THREE.Quaternion | null;
+  /** Skip raycasting against the model's meshes (use a cheap proxy instead). */
+  noRaycast?: boolean;
   onReady?: (root: THREE.Object3D) => void;
 }
 
-export function FittedModel({ config, align = "bottom", playAnimation = false, castShadow = true, onReady }: Props) {
+const skipRaycast = () => undefined;
+
+export function FittedModel({ config, align = "bottom", playAnimation = false, castShadow = true, orient, noRaycast = false, onReady }: Props) {
   const gltf = useGLTF(config.url);
   const group = useRef<THREE.Group>(null);
   const root = useMemo(() => {
     const scene = cloneSkinned(gltf.scene);
     const holder = new THREE.Group();
-    scene.rotation.set(...config.rotation);
     holder.add(scene);
+    const oriented = orient?.(scene) ?? null;
+    if (oriented) scene.quaternion.copy(oriented);
+    else scene.rotation.set(...config.rotation);
     holder.updateMatrixWorld(true);
+    scene.traverse((o) => (o as THREE.SkinnedMesh).isSkinnedMesh && (o as THREE.SkinnedMesh).skeleton.update());
     const box = new THREE.Box3().setFromObject(holder);
     const size = box.getSize(new THREE.Vector3());
     const scale = config.fitSize / Math.max(size.x, size.y, size.z, 1e-6);
@@ -41,10 +50,11 @@ export function FittedModel({ config, align = "bottom", playAnimation = false, c
         o.castShadow = castShadow;
         o.receiveShadow = true;
         o.frustumCulled = false;
+        if (noRaycast) o.raycast = skipRaycast;
       }
     });
     return holder;
-  }, [gltf.scene, config, align, castShadow]);
+  }, [gltf.scene, config, align, castShadow, orient, noRaycast]);
 
   const { actions, names } = useAnimations(gltf.animations, group);
 

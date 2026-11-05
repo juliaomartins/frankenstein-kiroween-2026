@@ -58,6 +58,20 @@ export function TitleScreen() {
           </span>
         </div>
         <p className="mt-4 text-xs text-white/40">Best with headphones. Requires a mouse and keyboard.</p>
+        <p className="mt-2 text-[11px] text-white/35">
+          Creature model:{" "}
+          <a className="underline hover:text-white/70" href="https://sketchfab.com/3d-models/frankenstein-s-monster-0e8d66cb3d4b486b9172f320f70b520f" target="_blank" rel="noreferrer">
+            &ldquo;Frankenstein S Monster&rdquo;
+          </a>{" "}
+          by{" "}
+          <a className="underline hover:text-white/70" href="https://sketchfab.com/samierh49" target="_blank" rel="noreferrer">
+            ennana
+          </a>
+          , licensed{" "}
+          <a className="underline hover:text-white/70" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">
+            CC BY 4.0
+          </a>
+        </p>
       </div>
     </div>
   );

@@ -1,12 +1,13 @@
 "use client";
 
 import { useFrame, useThree } from "@react-three/fiber";
-import { Suspense, useMemo, useRef } from "react";
+import { Suspense, useCallback, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { ASSETS } from "../config/assets";
 import { isAssembled } from "../logic/progress";
 import { useGame } from "../state/gameStore";
 import { awakeningElapsed, TIMELINE } from "./awakening";
+import { applyRigPose, buildCreatureRig, lyingOrientation, type CreatureRig, type RigPose } from "./creatureRig";
 import { FittedModel } from "./FittedModel";
 import { Interactable } from "./Interactable";
 import { TABLE } from "./layout";
@@ -132,6 +133,14 @@ function PlaceholderCreature({ refs, assembled }: { refs: PoseRefs; assembled: b
 }
 
 const tmpV = new THREE.Vector3();
+const pose: RigPose = { armsDown: 1, reach: 0, sit: 0, headYaw: 0, twitch: 0 };
+const proxyMaterial = new THREE.MeshBasicMaterial({ visible: false });
+
+function setPose(rig: CreatureRig | null, p: Partial<RigPose>) {
+  if (!rig) return;
+  Object.assign(pose, { armsDown: 1, reach: 0, sit: 0, headYaw: 0, twitch: 0 }, p);
+  applyRigPose(rig, pose);
+}
 
 export function Creature() {
   const available = useAssetAvailable(ASSETS.creature.url);
@@ -144,6 +153,17 @@ export function Creature() {
   const armR = useRef<THREE.Group>(null);
   const eyes = useRef<THREE.MeshBasicMaterial>(null);
   const model = useRef<THREE.Group>(null);
+  const rig = useRef<CreatureRig | null>(null);
+  const orient = useCallback((scene: THREE.Object3D) => {
+    const built = buildCreatureRig(scene);
+    scene.userData.rig = built;
+    if (!built) return null;
+    setPose(built, {});
+    return lyingOrientation(built);
+  }, []);
+  const onModelReady = useCallback((root: THREE.Object3D) => {
+    rig.current = (root.children[0]?.userData.rig as CreatureRig | null | undefined) ?? null;
+  }, []);
   const camera = useThree((s) => s.camera);
   const anchor = useMemo(() => new THREE.Vector3(TABLE.x, TABLE.height, TABLE.z), []);
 
@@ -156,6 +176,8 @@ export function Creature() {
       g.rotation.set(0, 0, 0);
       if (upper.current) upper.current.rotation.set(0, 0, 0);
       if (head.current) head.current.rotation.set(0, 0, 0);
+      if (model.current) model.current.rotation.set(0, 0, 0);
+      setPose(rig.current, {});
       return;
     }
     const t = awakeningElapsed(clock.elapsedTime);
@@ -164,6 +186,7 @@ export function Creature() {
     if (t < TIMELINE.surgeEnd) {
       const shake = 0.012 * Math.sin(t * 60) * Math.min(1, t);
       g.position.set(anchor.x, anchor.y + Math.abs(shake) * 2, anchor.z + shake);
+      setPose(rig.current, { twitch: Math.sin(t * 38) * Math.min(1, t) });
       return;
     }
     g.position.copy(anchor);
@@ -175,6 +198,7 @@ export function Creature() {
 
     if (t < TIMELINE.stirEnd) {
       if (armL.current) armL.current.rotation.y = Math.sin(t * 8) * 0.04;
+      setPose(rig.current, { twitch: Math.sin(t * 9) * 0.35 });
       return;
     }
 
@@ -189,7 +213,8 @@ export function Creature() {
     if (good) {
       const k = THREE.MathUtils.smoothstep(t, TIMELINE.stirEnd, TIMELINE.riseEnd);
       if (upper.current) upper.current.rotation.z = k * 1.25;
-      if (model.current) model.current.rotation.z = k * 1.1;
+      if (model.current && !rig.current) model.current.rotation.z = k * 1.1;
+      setPose(rig.current, { sit: k, headYaw: 0.55 * k, armsDown: 1 - 0.25 * k });
       lookYaw();
       return;
     }
@@ -197,7 +222,8 @@ export function Creature() {
     if (t < TIMELINE.riseEnd - 0.9) {
       const k = THREE.MathUtils.smoothstep(t, TIMELINE.stirEnd, TIMELINE.stirEnd + 0.5);
       if (upper.current) upper.current.rotation.z = k * 1.45;
-      if (model.current) model.current.rotation.z = k * 1.3;
+      if (model.current && !rig.current) model.current.rotation.z = k * 1.3;
+      setPose(rig.current, { sit: k, headYaw: 0.4 * k, twitch: Math.sin(t * 20), reach: 0.35 * k });
       if (armL.current) armL.current.rotation.z = Math.sin(t * 20) * 0.3;
       if (armR.current) armR.current.rotation.z = -Math.sin(t * 22) * 0.3;
       lookYaw();
@@ -206,6 +232,7 @@ export function Creature() {
 
     if (upper.current) upper.current.rotation.z = 0;
     if (model.current) model.current.rotation.z = 0;
+    setPose(rig.current, { reach: 1, twitch: Math.sin(t * 14) * 0.4 });
     if (armL.current) armL.current.rotation.set(0, 0.5, 1.2);
     if (armR.current) armR.current.rotation.set(0, -0.5, 1.2);
     const k = THREE.MathUtils.smoothstep(t, TIMELINE.riseEnd - 0.9, TIMELINE.attackEnd);
@@ -226,8 +253,11 @@ export function Creature() {
         {available ? (
           <Suspense fallback={null}>
             <group ref={model}>
-              <FittedModel config={ASSETS.creature} align="bottom" playAnimation={phase === "awakening" || phase === "ending"} />
+              <FittedModel config={ASSETS.creature} align="bottom" orient={orient} onReady={onModelReady} noRaycast playAnimation={phase === "awakening" || phase === "ending"} />
             </group>
+            <mesh position={[0, 0.2, 0]} material={proxyMaterial}>
+              <boxGeometry args={[2.0, 0.4, 0.75]} />
+            </mesh>
           </Suspense>
         ) : (
           <PlaceholderCreature refs={{ upper, head, armL, armR, eyes }} assembled={assembled} />

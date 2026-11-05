@@ -36,6 +36,7 @@ function blocked(x: number, z: number): boolean {
 export function Player() {
   const camera = useThree((s) => s.camera);
   const gl = useThree((s) => s.gl);
+  const scene = useThree((s) => s.scene);
   const keys = useRef({ f: false, b: false, l: false, r: false, run: false });
   const look = useRef(playerState.look);
   const velocity = useRef(new THREE.Vector3());
@@ -59,7 +60,7 @@ export function Player() {
     camera.rotation.order = "YXZ";
     const canvas = gl.domElement;
     if (process.env.NODE_ENV !== "production") {
-      (window as unknown as Record<string, unknown>).__lab = { store: useGame, camera, gl, look: look.current };
+      (window as unknown as Record<string, unknown>).__lab = { store: useGame, camera, gl, scene, look: look.current };
     }
 
     const onKey = (down: boolean) => (e: KeyboardEvent) => {
@@ -118,7 +119,7 @@ export function Player() {
       document.removeEventListener("pointerlockchange", onLockChange);
       unsub();
     };
-  }, [camera, gl]);
+  }, [camera, gl, scene]);
 
   useFrame(({ clock }, rawDt) => {
     const dt = Math.min(rawDt, 0.05);
