@@ -14,14 +14,28 @@ import { stormState } from "./stormState";
 
 const MOVE_KEYS: Record<string, "f" | "b" | "l" | "r"> = {
   KeyW: "f",
-  ArrowUp: "f",
   KeyS: "b",
-  ArrowDown: "b",
   KeyA: "l",
-  ArrowLeft: "l",
   KeyD: "r",
-  ArrowRight: "r",
 };
+
+const LOOK_KEYS: Record<string, "lookLeft" | "lookRight" | "lookUp" | "lookDown"> = {
+  ArrowLeft: "lookLeft",
+  ArrowRight: "lookRight",
+  ArrowUp: "lookUp",
+  ArrowDown: "lookDown",
+};
+
+const MOUSE_SENSITIVITY = 0.0022;
+const KEY_TURN_SPEED = 2.2;
+const KEY_PITCH_SPEED = 1.5;
+const PITCH_LIMIT = 1.45;
+
+const NO_KEYS = { f: false, b: false, l: false, r: false, run: false, lookLeft: false, lookRight: false, lookUp: false, lookDown: false };
+
+function isTyping(target: EventTarget | null): boolean {
+  return target instanceof HTMLElement && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
+}
 
 function blocked(x: number, z: number): boolean {
   const r = PLAYER.radius;
@@ -38,7 +52,7 @@ export function Player() {
   const camera = useThree((s) => s.camera);
   const gl = useThree((s) => s.gl);
   const scene = useThree((s) => s.scene);
-  const keys = useRef({ f: false, b: false, l: false, r: false, run: false });
+  const keys = useRef({ ...NO_KEYS });
   const look = useRef(playerState.look);
   const velocity = useRef(new THREE.Vector3());
   const raycaster = useMemo(() => {
@@ -64,42 +78,74 @@ export function Player() {
       (window as unknown as Record<string, unknown>).__lab = { store: useGame, camera, gl, scene, look: look.current };
     }
 
+    const turn = (dx: number, dy: number) => {
+      const sens = MOUSE_SENSITIVITY * useSettings.getState().sensitivity;
+      look.current.yaw -= dx * sens;
+      look.current.pitch = THREE.MathUtils.clamp(look.current.pitch - dy * sens, -PITCH_LIMIT, PITCH_LIMIT);
+    };
     const onKey = (down: boolean) => (e: KeyboardEvent) => {
-      const k = MOVE_KEYS[e.code];
-      if (k) keys.current[k] = down;
+      if (down && isTyping(e.target)) return;
+      const move = MOVE_KEYS[e.code];
+      if (move) keys.current[move] = down;
+      const lookKey = LOOK_KEYS[e.code];
+      if (lookKey) {
+        keys.current[lookKey] = down;
+        if (useGame.getState().phase === "playing") e.preventDefault();
+      }
       if (e.code === "ShiftLeft" || e.code === "ShiftRight") keys.current.run = down;
     };
     const keyDown = onKey(true);
     const keyUp = onKey(false);
+
+    const drag = { active: false, x: 0, y: 0 };
     const onMouse = (e: MouseEvent) => {
-      if (document.pointerLockElement !== canvas) return;
-      const sens = 0.0022 * useSettings.getState().sensitivity;
-      look.current.yaw -= e.movementX * sens;
-      look.current.pitch = THREE.MathUtils.clamp(look.current.pitch - e.movementY * sens, -1.45, 1.45);
+      if (document.pointerLockElement === canvas) {
+        turn(e.movementX, e.movementY);
+        return;
+      }
+      if (!drag.active) return;
+      turn(e.clientX - drag.x, e.clientY - drag.y);
+      drag.x = e.clientX;
+      drag.y = e.clientY;
     };
-    const onClick = () => {
+    const onPointerDown = (e: PointerEvent) => {
       const s = useGame.getState();
-      if (s.phase === "playing" && s.panel === null && document.pointerLockElement !== canvas) {
+      if (e.button !== 0 || s.phase !== "playing" || s.panel !== null) return;
+      drag.active = true;
+      drag.x = e.clientX;
+      drag.y = e.clientY;
+      if (document.pointerLockElement !== canvas) {
         const req = canvas.requestPointerLock() as unknown as Promise<void> | undefined;
-        req?.catch?.(() => undefined);
+        req?.catch?.(() => s.setPointerLockFailed(true));
       }
     };
-    const onLockChange = () => useGame.getState().setPointerLocked(document.pointerLockElement === canvas);
+    const onPointerUp = () => {
+      drag.active = false;
+    };
+    const onLockChange = () => {
+      const locked = document.pointerLockElement === canvas;
+      useGame.getState().setPointerLocked(locked);
+      if (locked) drag.active = false;
+    };
+    const onLockError = () => useGame.getState().setPointerLockFailed(true);
     const onBlur = () => {
-      keys.current = { f: false, b: false, l: false, r: false, run: false };
+      keys.current = { ...NO_KEYS };
+      drag.active = false;
     };
 
     window.addEventListener("keydown", keyDown);
     window.addEventListener("keyup", keyUp);
     window.addEventListener("mousemove", onMouse);
+    window.addEventListener("pointerup", onPointerUp);
     window.addEventListener("blur", onBlur);
-    canvas.addEventListener("click", onClick);
+    canvas.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("pointerlockchange", onLockChange);
+    document.addEventListener("pointerlockerror", onLockError);
 
     const unsub = useGame.subscribe((s, prev) => {
       if ((s.panel !== null && prev.panel === null) || (s.phase !== "playing" && prev.phase === "playing")) {
         if (document.pointerLockElement) document.exitPointerLock();
-        keys.current = { f: false, b: false, l: false, r: false, run: false };
+        keys.current = { ...NO_KEYS };
       }
       if (s.phase === "playing" && prev.phase !== "playing") {
         camera.position.set(...PLAYER.start);
@@ -115,9 +161,11 @@ export function Player() {
       window.removeEventListener("keydown", keyDown);
       window.removeEventListener("keyup", keyUp);
       window.removeEventListener("mousemove", onMouse);
+      window.removeEventListener("pointerup", onPointerUp);
       window.removeEventListener("blur", onBlur);
-      canvas.removeEventListener("click", onClick);
+      canvas.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("pointerlockchange", onLockChange);
+      document.removeEventListener("pointerlockerror", onLockError);
       unsub();
     };
   }, [camera, gl, scene]);
@@ -136,6 +184,16 @@ export function Player() {
     const input = v.input.set((k.r ? 1 : 0) - (k.l ? 1 : 0), (k.f ? 1 : 0) - (k.b ? 1 : 0));
     if (!active) input.set(0, 0);
     if (input.lengthSq() > 1) input.normalize();
+
+    if (active) {
+      const sensitivity = useSettings.getState().sensitivity;
+      look.current.yaw += ((k.lookLeft ? 1 : 0) - (k.lookRight ? 1 : 0)) * KEY_TURN_SPEED * sensitivity * dt;
+      look.current.pitch = THREE.MathUtils.clamp(
+        look.current.pitch + ((k.lookUp ? 1 : 0) - (k.lookDown ? 1 : 0)) * KEY_PITCH_SPEED * sensitivity * dt,
+        -PITCH_LIMIT,
+        PITCH_LIMIT,
+      );
+    }
 
     const yaw = look.current.yaw;
     const speed = k.run ? PLAYER.runSpeed : PLAYER.walkSpeed;

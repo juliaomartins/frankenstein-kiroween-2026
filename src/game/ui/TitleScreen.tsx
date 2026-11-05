@@ -14,7 +14,7 @@ type Overlay = "options" | "credits" | "farewell" | null;
 function lockPointer() {
   const canvas = document.querySelector("canvas");
   const req = canvas?.requestPointerLock() as unknown as Promise<void> | undefined;
-  req?.catch?.(() => undefined);
+  req?.catch?.(() => useGame.getState().setPointerLockFailed(true));
 }
 
 function HeartbeatDivider() {

@@ -30,7 +30,8 @@ Other scripts: `npm test` (game-logic unit tests), `npm run typecheck`, `npm run
 
 | Key | Action |
 |---|---|
-| Mouse | Look (click the scene to capture the mouse, Esc to release) |
+| Mouse | Look (click the scene to capture the mouse, Esc to release; if the browser blocks capture, drag to look) |
+| Arrow keys | Turn and look up/down, usable together with W A S D |
 | W A S D | Move (Shift to run) |
 | E | Interact / take / examine |
 | F | Use the equipped tool (operate on the body) |

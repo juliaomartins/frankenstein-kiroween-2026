@@ -104,7 +104,14 @@ function ControlsHint() {
         <span className="pb-1">Move</span>
       </div>
       <div className="flex items-center gap-3">
-        <MouseIcon className="h-7 w-7" /> Look
+        <MouseIcon className="h-7 w-7" />
+        <span className="flex gap-1">
+          <KeyCap>←</KeyCap>
+          <KeyCap>↑</KeyCap>
+          <KeyCap>↓</KeyCap>
+          <KeyCap>→</KeyCap>
+        </span>
+        Look
       </div>
       <div className="flex items-center gap-3">
         <KeyCap>E</KeyCap> Interact
@@ -172,12 +179,13 @@ function Toasts() {
 
 function ResumeHint() {
   const locked = useGame((s) => s.pointerLocked);
+  const failed = useGame((s) => s.pointerLockFailed);
   const panel = useGame((s) => s.panel);
   const phase = useGame((s) => s.phase);
   if (locked || panel || phase !== "playing") return null;
   return (
-    <div className="pointer-events-none absolute left-1/2 top-[38%] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-black/60 px-4 py-2 text-sm tracking-wide text-white/85">
-      Click to look around · Esc releases the mouse
+    <div className="pointer-events-none absolute left-1/2 top-[38%] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-black/60 px-4 py-2 text-center text-sm tracking-wide text-white/85">
+      {failed ? "Drag with the mouse or use the arrow keys to look while you walk" : "Click to capture the mouse · or drag, or use the arrow keys, to look"}
     </div>
   );
 }
