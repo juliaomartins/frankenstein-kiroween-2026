@@ -1,5 +1,6 @@
 "use client";
 
+import { useProgress } from "@react-three/drei";
 import { initAudio } from "../audio";
 import { FAILURE_EXPLANATIONS } from "../logic/rules";
 import { useGame } from "../state/gameStore";
@@ -10,6 +11,16 @@ function lockPointer() {
   const canvas = document.querySelector("canvas");
   const req = canvas?.requestPointerLock() as unknown as Promise<void> | undefined;
   req?.catch?.(() => undefined);
+}
+
+function LoadStatus() {
+  const { active, progress } = useProgress();
+  const loading = active || progress < 100;
+  return (
+    <p className="mt-3 text-xs tracking-wide text-white/45" aria-live="polite">
+      {loading ? `Preparing the models… ${Math.round(progress)}%` : "The laboratory is ready."}
+    </p>
+  );
 }
 
 export function TitleScreen() {
@@ -37,6 +48,7 @@ export function TitleScreen() {
             Enter the laboratory
           </PrimaryButton>
         </div>
+        <LoadStatus />
         <div className="mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-white/60">
           <span className="flex items-center gap-1.5">
             <KeyCap>W</KeyCap>

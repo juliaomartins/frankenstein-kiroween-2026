@@ -7,6 +7,7 @@ import * as THREE from "three";
 import { ASSETS } from "../config/assets";
 import { useGame } from "../state/gameStore";
 import { applyHandGrip, buildHandRig } from "./handsRig";
+import { usePrecompiled } from "./usePrecompiled";
 import { playerState } from "./playerState";
 
 const sleeveMat = new THREE.MeshStandardMaterial({ color: "#221b16", roughness: 1 });
@@ -20,12 +21,13 @@ interface Grip {
 function GlbHand({ side, grip }: { side: 1 | -1; grip: React.RefObject<Grip> }) {
   const gltf = useGLTF(ASSETS.hands.url);
   const handRig = useMemo(() => buildHandRig(gltf, side), [gltf, side]);
+  const ready = usePrecompiled(handRig?.holder ?? null);
   useFrame(() => {
     if (handRig) applyHandGrip(handRig, side > 0 ? grip.current.right : grip.current.left);
   });
   if (!handRig) return null;
   return (
-    <group>
+    <group visible={ready}>
       <primitive object={handRig.holder} />
       <mesh position={[0, -0.012, 0.25]} rotation={[Math.PI / 2 - 0.06, 0, 0]} material={sleeveMat}>
         <cylinderGeometry args={[0.05, 0.06, 0.26, 16]} />

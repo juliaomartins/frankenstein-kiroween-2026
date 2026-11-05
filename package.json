@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "optimize:models": "node scripts/optimize-models.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.5.0",

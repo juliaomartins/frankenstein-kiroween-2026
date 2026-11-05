@@ -96,6 +96,13 @@ The creature is `public/models/frankenstein.glb`. It is posed and animated throu
 - First-person hands: ["hands animation"](https://sketchfab.com/3d-models/hands-animation-9f63e924253b4179adb79b117a26d385) by [hugo colauto](https://sketchfab.com/hugocolauto), Sketchfab Standard licence.
 - Creature model: ["Frankenstein S Monster"](https://sketchfab.com/3d-models/frankenstein-s-monster-0e8d66cb3d4b486b9172f320f70b520f) by [ennana](https://sketchfab.com/samierh49), licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
+### Model loading
+
+- `npm run optimize:models` (`scripts/optimize-models.mjs`, uses the `sharp` package that Next.js already installs) re-encodes textures as WebP and caps their size. It also strips the unused second hand from `player-hands.glb` and bakes its 21 s take down to the two poses the game uses (2 s and 8 s). The models went from 26.3 MB to 2.1 MB. Run it on the original Sketchfab downloads, since each run re-encodes the textures.
+- Both models start downloading while the title screen is showing (`useGLTF.preload`), and the title screen shows their progress without blocking entry.
+- Each model's shaders are compiled in the background (`renderer.compileAsync`) before it is shown, so it appears without a frame hitch. The creature keeps its procedural stand-in until the real model is ready.
+- `/models/*` is served with a one-day cache.
+
 ### Performance notes
 
 One shadow-casting spotlight, a fixed set of point lights (constant count, so shaders never recompile mid-game), instanced bottles and books, cached canvas textures, adaptive DPR and a performance monitor that drops bloom quality and MSAA on slow GPUs.

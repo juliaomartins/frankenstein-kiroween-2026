@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
 import type { ModelConfig } from "../config/assets";
+import { usePrecompiled } from "./usePrecompiled";
 
 interface Props {
   config: ModelConfig;
@@ -17,11 +18,13 @@ interface Props {
   /** Skip raycasting against the model's meshes (use a cheap proxy instead). */
   noRaycast?: boolean;
   onReady?: (root: THREE.Object3D) => void;
+  /** Called once the model's shaders are compiled and it is shown. */
+  onVisible?: () => void;
 }
 
 const skipRaycast = () => undefined;
 
-export function FittedModel({ config, align = "bottom", playAnimation = false, castShadow = true, orient, noRaycast = false, onReady }: Props) {
+export function FittedModel({ config, align = "bottom", playAnimation = false, castShadow = true, orient, noRaycast = false, onReady, onVisible }: Props) {
   const gltf = useGLTF(config.url);
   const group = useRef<THREE.Group>(null);
   const root = useMemo(() => {
@@ -56,7 +59,12 @@ export function FittedModel({ config, align = "bottom", playAnimation = false, c
     return holder;
   }, [gltf.scene, config, align, castShadow, orient, noRaycast]);
 
+  const ready = usePrecompiled(root);
   const { actions, names } = useAnimations(gltf.animations, group);
+
+  useEffect(() => {
+    if (ready) onVisible?.();
+  }, [ready, onVisible]);
 
   useEffect(() => {
     onReady?.(root);
@@ -73,7 +81,7 @@ export function FittedModel({ config, align = "bottom", playAnimation = false, c
   }, [playAnimation, actions, names]);
 
   return (
-    <group ref={group}>
+    <group ref={group} visible={ready}>
       <primitive object={root} />
     </group>
   );

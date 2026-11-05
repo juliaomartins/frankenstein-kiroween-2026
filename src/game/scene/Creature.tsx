@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame, useThree } from "@react-three/fiber";
-import { Suspense, useCallback, useMemo, useRef } from "react";
+import { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { ASSETS } from "../config/assets";
 import { isAssembled } from "../logic/progress";
@@ -161,6 +161,8 @@ export function Creature() {
     setPose(built, {});
     return lyingOrientation(built);
   }, []);
+  const [modelVisible, setModelVisible] = useState(false);
+  const onModelVisible = useCallback(() => setModelVisible(true), []);
   const onModelReady = useCallback((root: THREE.Object3D) => {
     rig.current = (root.children[0]?.userData.rig as CreatureRig | null | undefined) ?? null;
   }, []);
@@ -250,18 +252,27 @@ export function Creature() {
   return (
     <Interactable id="creature">
       <group ref={root} position={anchor.toArray()}>
-        {available ? (
+        {available && (
           <Suspense fallback={null}>
             <group ref={model}>
-              <FittedModel config={ASSETS.creature} align="bottom" orient={orient} onReady={onModelReady} noRaycast playAnimation={phase === "awakening" || phase === "ending"} />
+              <FittedModel
+                config={ASSETS.creature}
+                align="bottom"
+                orient={orient}
+                onReady={onModelReady}
+                onVisible={onModelVisible}
+                noRaycast
+                playAnimation={phase === "awakening" || phase === "ending"}
+              />
             </group>
-            <mesh position={[0, 0.2, 0]} material={proxyMaterial}>
-              <boxGeometry args={[2.0, 0.4, 0.75]} />
-            </mesh>
+            {modelVisible && (
+              <mesh position={[0, 0.2, 0]} material={proxyMaterial}>
+                <boxGeometry args={[2.0, 0.4, 0.75]} />
+              </mesh>
+            )}
           </Suspense>
-        ) : (
-          <PlaceholderCreature refs={{ upper, head, armL, armR, eyes }} assembled={assembled} />
         )}
+        {!modelVisible && <PlaceholderCreature refs={{ upper, head, armL, armR, eyes }} assembled={assembled} />}
       </group>
     </Interactable>
   );

@@ -1,10 +1,11 @@
 "use client";
 
-import { AdaptiveDpr, PerformanceMonitor } from "@react-three/drei";
+import { AdaptiveDpr, PerformanceMonitor, useGLTF } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Bloom, EffectComposer, Noise, Vignette } from "@react-three/postprocessing";
 import { useState } from "react";
 import * as THREE from "three";
+import { ASSETS } from "../config/assets";
 import { Creature } from "./Creature";
 import { Hands } from "./Hands";
 import { Laboratory } from "./Laboratory";
@@ -12,6 +13,9 @@ import { ControlConsole, ElectrodeRing, Furnace, OperatingTable, TeslaCoil } fro
 import { Player } from "./Player";
 import { Decor, Items } from "./Props";
 import { Storm } from "./Storm";
+
+useGLTF.preload(ASSETS.creature.url);
+useGLTF.preload(ASSETS.hands.url);
 
 export function GameCanvas() {
   const [quality, setQuality] = useState<"high" | "low">("high");
