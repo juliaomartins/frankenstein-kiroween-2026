@@ -1,0 +1,56 @@
+---
+name: memory-gardener
+description: Asked to clean or prune skills or memory, learnings.md over ~30 bullets, or handover over 120 lines. Load BEFORE deleting or merging notes.
+---
+
+# Memory Gardener — Keep the Compounding Compounding
+
+Self-improving skills only work if their learnings stay short, true, and deduplicated. Unpruned, a learnings file becomes a per-use context tax full of stale one-offs. This skill is the maintenance pass.
+
+## Self-improvement (do this first and last)
+1. **At start:** apply `learnings.md` if the `learnings-inject` mod supplied it. Do not search for it.
+2. **At end:** append one dated bullet only for a new, non-obvious lesson (a pruning heuristic that worked, a class of bullet that always turns out stale). Most uses add nothing. Merge instead of duplicating; delete disproven bullets.
+
+## Scope
+Glob for every `learnings.md` under the skills directories (`<skill-root>/*/`), the project's `memory-bank/` (INDEX.md + entries — see the `memory-bank` skill), **the project's handover notes (`handover.md`, or `handover/<role>.md` + `handover/board.md` in parallel mode — see the `handover` skill)**, plus the user's persistent memory index if present. Report per-file sizes first; garden the files over ~15 bullets, over the handover ceiling, or explicitly named.
+
+## Find stale bullets first (script, any tool)
+Run `node <skill-root>/memory-gardener/stale.js` from the project root before reading anything. It lists bullets that name a file which no longer exists, with file and line, and never edits. Treat each as a candidate: delete it when the lesson was only about that file, keep or rewrite it when the lesson still holds in general. Do not read the clean files; the report replaces that pass.
+
+## Gardening handover notes (highest-value target)
+Handover is loaded **in full at every session start**, so bloat there is charged to every future session — unlike a learnings file, which is read only when its skill runs. Treat it as the priority.
+
+The failure mode is always the same: dated session sections stacked into a log instead of one block overwritten in place. Fix by **routing, not deleting** (the `handover` skill's table is authoritative):
+- Decisions / solved mysteries / non-obvious "why" → distil into `memory-bank/` one-fact files, adding the `INDEX.md` line in the same step.
+- Session narrative, file-by-file change logs → **delete**; git already records it. Never copy it to memory-bank.
+- Fixed bugs, shipped work, completed next-steps → delete.
+- Keep only: current state, the exact resume point, live known-issues, and don't-touch gotchas.
+
+Collapse multiple dated sections into a single `## Last session`. In parallel mode the ceiling applies **per role file**, and `board.md` should keep no `done` rows. If demoting into `memory-bank/` from a role session, claim `@memory-bank-index` in `handover/locks.d/` first (atomic `mkdir`, per `role-session`) — concurrent demotions collide on the index.
+
+## Gardening rules — per file
+**Merge:** bullets teaching the same lesson in different words become one bullet with the strongest phrasing. Two data points for the same pattern make it a *rule*; note that ("seen 3×").
+
+**Promote:** a lesson that has held up repeatedly stops being a dated anecdote and moves to the top as a standing rule — or, if it's universal enough, gets proposed as an edit to the skill body itself (the highest form of promotion: learning → skill text). Propose body edits, apply on approval.
+
+**Share with the kit (owner's choice, never automatic):** a lesson that would help any project, with nothing specific to this one, can be recorded with `node <skill-root>/memory-gardener/feedback.js add --skill <name> --text "<lesson>"`. It goes to `kit-feedback.md` in the project root, a local file that is in `.gitignore` and created only by this command. The kit repo is public and may be used in a workplace: the script refuses a lesson containing a URL, email, IP, absolute path, long token or a word from the deny lists (`.kit-feedback-deny` in the project, `~/.ai-dev-kit/feedback-deny.txt` for every project, e.g. an employer name). Write it with no company, client or product details. Token cost per session goes in the same file: `feedback.js cost --sid <id>`, `--last N` or `--all` (sessions of 3+ turns; `--min-turns N` changes that) writes one `[token-cost]` line per session from the `budget-ledger` data: turns, cost, cache hit, context peak and the tools whose results put the most text into context. Re-running updates a session's line instead of duplicating it. Nothing sends or pushes this file. To share a lesson, the owner runs `feedback.js check`, reads the file, and applies it to the kit by hand; never offer to push it, and ask before even drafting an issue or pull request.
+
+**Demote/delete:**
+- Contradicted by a later bullet → delete the loser, keep the winner with a note.
+- One-off tied to a specific bug/file/date with no general pattern after N sessions → delete.
+- Facts that were verified stale (old API shapes, prices, versions) → delete or update from current docs — never leave a stale fact because it's "historical".
+- Anything the skill body now already says → delete (it's been promoted, the duplicate is a tax).
+
+**Rewrite:** every surviving bullet should be one line, imperative or cause→effect form, understandable without the session that produced it. "Venus counters broke" is dead weight; "IntersectionObserver callbacks fire before layout settles on MPA nav — re-measure in rAF" survives.
+
+## Hard targets
+- Post-garden: each learnings file ≤ 15 bullets, each bullet ≤ 2 lines.
+- Post-garden: each handover file ≤ 120 lines, with exactly one `## Last session` block.
+- Never delete silently in bulk: show a short before/after summary (merged N, deleted M with one-line reasons, promoted K, **demoted D to memory-bank**).
+- Memory index (if gardening user memory): one line per entry, no content in the index, entries whose target file no longer exists get removed.
+
+## Cadence
+Suggest a garden when any learnings file crosses ~30 bullets, when a handover file crosses its 120-line ceiling, or roughly every 10–15 sessions of active skill use. Gardening is cheap; reading bloat every session is not.
+
+## Relationship to skill-ablation
+This skill prunes and merges instructions that stay. It never asks whether an instruction should exist at all — a lean, well-merged skill can still be fully obsolete against the current model. `skill-ablation` runs that test periodically (archive everything, run bare, restore only on repeated evidence). If the same instruction keeps surviving garden passes untouched, that's a signal to run `skill-ablation` rather than keep gardening around it.

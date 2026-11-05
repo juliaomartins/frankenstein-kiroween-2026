@@ -1,0 +1,313 @@
+{
+  "version": 1,
+  "tool": "claude",
+  "standards": true,
+  "commentStyleLevel": "terse",
+  "contextCode": "none",
+  "skills": {
+    "strata-css": {
+      "dir": "libraries",
+      "companions": [
+        "coverage.js"
+      ]
+    },
+    "triforge": {
+      "dir": "libraries",
+      "companions": []
+    },
+    "memory-bank": {
+      "dir": "memory",
+      "companions": []
+    },
+    "memory-gardener": {
+      "dir": "memory",
+      "companions": [
+        "feedback.js",
+        "stale.js"
+      ]
+    },
+    "skill-ablation": {
+      "dir": "memory",
+      "companions": []
+    },
+    "cli-writer": {
+      "dir": "meta",
+      "companions": []
+    },
+    "command-writer": {
+      "dir": "meta",
+      "companions": []
+    },
+    "mod-writer": {
+      "dir": "meta",
+      "companions": []
+    },
+    "skill-scope": {
+      "dir": "meta",
+      "companions": [
+        "auto.js",
+        "move.js",
+        "triggers.json"
+      ]
+    },
+    "skill-writer": {
+      "dir": "meta",
+      "companions": []
+    },
+    "claude-all-models": {
+      "dir": "models/claude",
+      "companions": []
+    },
+    "fable-5-1": {
+      "dir": "models/claude",
+      "companions": []
+    },
+    "fable-5": {
+      "dir": "models/claude",
+      "companions": []
+    },
+    "haiku-4-5": {
+      "dir": "models/claude",
+      "companions": []
+    },
+    "haiku-5-5": {
+      "dir": "models/claude",
+      "companions": []
+    },
+    "hooks-enforcement": {
+      "dir": "models/claude",
+      "companions": [
+        "pre-commit-clear.sh",
+        "pre-commit-gate.sh"
+      ]
+    },
+    "opus-4-8": {
+      "dir": "models/claude",
+      "companions": []
+    },
+    "opus-5-5": {
+      "dir": "models/claude",
+      "companions": []
+    },
+    "opus-5": {
+      "dir": "models/claude",
+      "companions": []
+    },
+    "opus-as-fable": {
+      "dir": "models/claude",
+      "companions": []
+    },
+    "sonnet-5-5": {
+      "dir": "models/claude",
+      "companions": []
+    },
+    "sonnet-5": {
+      "dir": "models/claude",
+      "companions": []
+    },
+    "astro-page": {
+      "dir": "stack",
+      "companions": []
+    },
+    "shopify-toolkit-install": {
+      "dir": "stack",
+      "companions": []
+    },
+    "threejs-scene": {
+      "dir": "stack",
+      "companions": []
+    },
+    "code-audit": {
+      "dir": "standards",
+      "companions": [
+        "audit.js"
+      ]
+    },
+    "coding-standards": {
+      "dir": "standards",
+      "companions": []
+    },
+    "comment-style": {
+      "dir": "standards",
+      "companions": []
+    },
+    "security-audit": {
+      "dir": "standards",
+      "companions": []
+    },
+    "ui-design": {
+      "dir": "standards",
+      "companions": []
+    },
+    "ux-theory": {
+      "dir": "standards",
+      "companions": [
+        "topics"
+      ]
+    },
+    "agent-usage": {
+      "dir": "workflow",
+      "companions": []
+    },
+    "debug-protocol": {
+      "dir": "workflow",
+      "companions": []
+    },
+    "e2e-scaffold": {
+      "dir": "workflow",
+      "companions": [
+        "templates.md"
+      ]
+    },
+    "handover": {
+      "dir": "workflow",
+      "companions": [
+        "extras.md",
+        "size.js"
+      ]
+    },
+    "intent-capture": {
+      "dir": "workflow",
+      "companions": []
+    },
+    "interpretation-checkpoint": {
+      "dir": "workflow",
+      "companions": []
+    },
+    "mode-kernel": {
+      "dir": "workflow",
+      "companions": []
+    },
+    "optimize-assets": {
+      "dir": "workflow",
+      "companions": [
+        "convert.js"
+      ]
+    },
+    "perf-audit": {
+      "dir": "workflow",
+      "companions": []
+    },
+    "plan-first": {
+      "dir": "workflow",
+      "companions": [
+        "delegate.js",
+        "delegated.md"
+      ]
+    },
+    "pre-commit": {
+      "dir": "workflow",
+      "companions": [
+        "check.js",
+        "install-hook.js"
+      ]
+    },
+    "pre-merge-gate": {
+      "dir": "workflow",
+      "companions": [
+        "edit-check.js"
+      ]
+    },
+    "resolve-conflicts": {
+      "dir": "workflow",
+      "companions": [
+        "roles.example.json",
+        "scope.js"
+      ]
+    },
+    "responsive-check": {
+      "dir": "workflow",
+      "companions": [
+        "measure.js",
+        "probes.js"
+      ]
+    },
+    "role-session": {
+      "dir": "workflow",
+      "companions": [
+        "protocol.md",
+        "templates.md"
+      ]
+    },
+    "session-budget": {
+      "dir": "workflow",
+      "companions": [
+        "compact.js",
+        "report.js"
+      ]
+    },
+    "version-bump": {
+      "dir": "workflow",
+      "companions": [
+        "bump.js"
+      ]
+    }
+  },
+  "archived": {},
+  "skillRoot": ".claude/skills",
+  "protocolFile": "CLAUDE.md",
+  "commands": {
+    "audit": {
+      "file": ".claude/commands/audit.md",
+      "sha": "53ff0656f93968896e98a7a837cc07016208c831"
+    },
+    "commit-check": {
+      "file": ".claude/commands/commit-check.md",
+      "sha": "9458d9e4f7f1e583649e53c60491ba8ab49dcc0d"
+    },
+    "eta": {
+      "file": ".claude/commands/eta.md",
+      "sha": "7c5238cd47e6c2f1418a86c1368cffe431960ff0"
+    },
+    "format": {
+      "file": ".claude/commands/format.md",
+      "sha": "39a34b57ce602278a3885deeece2d47f1f0a32c8"
+    },
+    "githooks": {
+      "file": ".claude/commands/githooks.md",
+      "sha": "635199393c779599ae028e251a8ae9b926981779"
+    },
+    "kit": {
+      "file": ".claude/commands/kit.md",
+      "sha": "58fd413873e5be9fc255ef17a177303417905f6d"
+    },
+    "next": {
+      "file": ".claude/commands/next.md",
+      "sha": "7993837193b96cf879a2542f745cc7f7f7460ed7"
+    },
+    "optimize-assets": {
+      "file": ".claude/commands/optimize-assets.md",
+      "sha": "8d5e7f0747bf31713913e0fc949b92cff04eb052"
+    },
+    "pickup": {
+      "file": ".claude/commands/pickup.md",
+      "sha": "65acdd53b901bd20fec008bede3804caef7bafaa"
+    },
+    "quiet": {
+      "file": ".claude/commands/quiet.md",
+      "sha": "b39b8dac3455b432cc1e4b6eefe62bd0a9757b0c"
+    },
+    "resolve-conflicts": {
+      "file": ".claude/commands/resolve-conflicts.md",
+      "sha": "23443a362398743cf766314847ca0b93b491b7b7"
+    },
+    "responsive-check": {
+      "file": ".claude/commands/responsive-check.md",
+      "sha": "2df834070853b43cdc11214398508ef4777b6caf"
+    },
+    "stale": {
+      "file": ".claude/commands/stale.md",
+      "sha": "cb0e766b396fc425b13e2da6b7b2499c9d3bf1fe"
+    },
+    "version-bump": {
+      "file": ".claude/commands/version-bump.md",
+      "sha": "3b069655a220190ddc0fedb05cdda44f8973cf15"
+    },
+    "wrap-up": {
+      "file": ".claude/commands/wrap-up.md",
+      "sha": "688179aef5c04ff9b477d0f3f5afbc264e466430"
+    }
+  },
+  "lastSeen": "2026-11-03",
+  "updatedAt": "2026-11-05T07:33:06.789Z"
+}

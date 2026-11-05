@@ -1,0 +1,37 @@
+---
+name: pre-commit
+description: Asked to commit, "ship it" or "save this", or a git commit is about to run. Load BEFORE running git commit.
+---
+
+# Pre-Commit — Nothing Accidental Ships
+
+A commit is the one operation where sloppiness becomes permanent history. This pass takes ~1 minute and catches the classics: stray files, debug leftovers, mixed concerns, vague messages.
+
+## Self-improvement (do this first and last)
+1. **At start:** apply `learnings.md` if the `learnings-inject` mod supplied it. Do not search for it.
+2. **At end:** append one dated bullet only for a new, non-obvious lesson (what this pass caught, or a check that never fires and could be dropped). Most uses add nothing. Merge instead of duplicating; delete disproven bullets.
+
+## Step 0 — Run the mechanical check
+`node <skill-root>/pre-commit/check.js --staged --message "<draft message>"` (add `--all` before `git commit -a`, `--push` before a push). It reports debug leftovers, secrets and secret files (values masked), untracked and half-staged files, and message format against the git standard. Read its findings instead of re-reading the diff for those categories; any BLOCK stops the commit. The optional `precommit-gate` mod (Claude Code) runs it on every `git commit` and `git push`: a BLOCK stops every attempt; warnings (a header over 50 characters, untracked files) stop the first attempt for a staged change set, and running the same command again commits. No declaration file is needed. For human commits and tools with no mods (OpenCode, Codex), `node <skill-root>/pre-commit/install-hook.js` installs the same check as real git hooks (`pre-commit` for secrets and files, `commit-msg` for the message format); only BLOCK findings fail a commit, and `uninstall` removes only hooks it wrote.
+
+## Step 1 — Survey before staging
+`git status` + `git diff` (and `git diff --stat` for shape):
+- **Untracked strays:** screenshots, scratch files, `*.log`, editor droppings, test assets dumped in root. Each one: belongs in the commit (move to its proper location first), in `.gitignore`, or deleted. Never `git add .` past unexplained untracked files.
+- **Debug leftovers in the diff:** `console.log`/`print` probes, commented-out blocks, hardcoded test values, TODO-without-ticket. Remove or justify.
+- **Unrelated changes mixed in:** if the diff serves two purposes, split into two commits — stage selectively (`git add -p` is unavailable here; stage by file, or split files' changes deliberately).
+
+## Step 2 — Project standards
+- Read the project's git standard if one exists (`coding-standards/git-standards.md`, CONTRIBUTING, etc.) and follow its message format exactly — otherwise default to imperative summary ≤72 chars + body explaining *why* when non-obvious.
+- **Versioning:** if the project has a versioning standard/changelog, check whether this change class requires a bump/entry and do it in the same commit using the `version-bump` skill (`node <skill-root>/version-bump/bump.js <major|feature|patch> [scope] --added/--fixed/--changed "…"`) if it is installed.
+- Branch check: if on the default branch and the project's flow uses feature branches, branch first.
+- Hooks: never bypass (`--no-verify` is off the table); a failing hook is a bug to fix, not an obstacle.
+
+## Step 3 — Message
+- First line answers "what does this commit do" in imperative mood; body answers "why" and flags anything a reviewer would trip on.
+- No "fix stuff", no "WIP" on shared branches, no message that just restates the diff.
+- If the session's work maps to a plan/handover item, phrase the message so it's findable later (name the feature, not the files).
+
+## Step 4 — Final gate
+- Re-run `git status` after staging: staged set = exactly the intended set, nothing left half-staged.
+- If tests/build exist and the change is non-trivial: run them before committing, not after.
+- Commit only when asked or durably authorized; report the hash + one-line summary, not a re-narration of the diff.
