@@ -2,6 +2,8 @@ export type Vec3 = [number, number, number];
 
 export interface ModelConfig {
   url: string;
+  /** Set to false to ignore the file and use the built-in procedural version. */
+  enabled?: boolean;
   /** Largest bounding-box dimension the model is scaled to, in metres. */
   fitSize: number;
   /** Rotation applied before fitting, in radians. */
@@ -24,6 +26,7 @@ export const ASSETS = {
   } satisfies ModelConfig,
   hands: {
     url: "/models/player-hands.glb",
+    enabled: false,
     fitSize: 0.85,
     rotation: [0, Math.PI, 0],
     offset: [0, -0.32, -0.45],

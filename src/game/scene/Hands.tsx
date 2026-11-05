@@ -109,7 +109,8 @@ export function Hands() {
   const grip = useRef<Grip>({ left: 0.08, right: 0.08 });
   const leftFingers = useRef<(THREE.Group | null)[]>([]);
   const rightFingers = useRef<(THREE.Group | null)[]>([]);
-  const available = useAssetAvailable(ASSETS.hands.url);
+  const fileAvailable = useAssetAvailable(ASSETS.hands.url);
+  const available = ASSETS.hands.enabled !== false && fileAvailable;
   const phase = useGame((s) => s.phase);
   const base = useMemo(
     () => ({
