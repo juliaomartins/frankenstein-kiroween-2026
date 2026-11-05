@@ -101,17 +101,10 @@ function ControlsHint() {
             <KeyCap>D</KeyCap>
           </div>
         </div>
-        <span className="pb-1">Move</span>
+        <span className="pb-1">or arrow keys · Move</span>
       </div>
       <div className="flex items-center gap-3">
-        <MouseIcon className="h-7 w-7" />
-        <span className="flex gap-1">
-          <KeyCap>←</KeyCap>
-          <KeyCap>↑</KeyCap>
-          <KeyCap>↓</KeyCap>
-          <KeyCap>→</KeyCap>
-        </span>
-        Look
+        <MouseIcon className="h-7 w-7" /> Mouse or touchpad · Look
       </div>
       <div className="flex items-center gap-3">
         <KeyCap>E</KeyCap> Interact
@@ -185,7 +178,7 @@ function ResumeHint() {
   if (locked || panel || phase !== "playing") return null;
   return (
     <div className="pointer-events-none absolute left-1/2 top-[38%] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-black/60 px-4 py-2 text-center text-sm tracking-wide text-white/85">
-      {failed ? "Drag with the mouse or use the arrow keys to look while you walk" : "Click to capture the mouse · or drag, or use the arrow keys, to look"}
+      {failed ? "Drag with the mouse, or swipe two fingers on the touchpad, to look while you walk" : "Click to capture the mouse · or drag, or swipe two fingers on the touchpad, to look"}
     </div>
   );
 }

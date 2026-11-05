@@ -95,7 +95,7 @@ function LoadStatus() {
 }
 
 const KEY_HINTS: { keys: string[]; label: string }[] = [
-  { keys: ["W", "A", "S", "D"], label: "Move" },
+  { keys: ["W", "A", "S", "D"], label: "or Arrows · Move" },
   { keys: ["E"], label: "Interact" },
   { keys: ["F"], label: "Use Tool" },
   { keys: ["Tab"], label: "Inventory" },

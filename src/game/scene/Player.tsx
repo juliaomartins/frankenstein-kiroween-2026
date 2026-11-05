@@ -14,24 +14,21 @@ import { stormState } from "./stormState";
 
 const MOVE_KEYS: Record<string, "f" | "b" | "l" | "r"> = {
   KeyW: "f",
+  ArrowUp: "f",
   KeyS: "b",
+  ArrowDown: "b",
   KeyA: "l",
+  ArrowLeft: "l",
   KeyD: "r",
-};
-
-const LOOK_KEYS: Record<string, "lookLeft" | "lookRight" | "lookUp" | "lookDown"> = {
-  ArrowLeft: "lookLeft",
-  ArrowRight: "lookRight",
-  ArrowUp: "lookUp",
-  ArrowDown: "lookDown",
+  ArrowRight: "r",
 };
 
 const MOUSE_SENSITIVITY = 0.0022;
-const KEY_TURN_SPEED = 2.2;
-const KEY_PITCH_SPEED = 1.5;
+const WHEEL_SENSITIVITY = 0.0016;
+const LINE_HEIGHT_PX = 16;
 const PITCH_LIMIT = 1.45;
 
-const NO_KEYS = { f: false, b: false, l: false, r: false, run: false, lookLeft: false, lookRight: false, lookUp: false, lookDown: false };
+const NO_KEYS = { f: false, b: false, l: false, r: false, run: false };
 
 function isTyping(target: EventTarget | null): boolean {
   return target instanceof HTMLElement && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
@@ -86,11 +83,9 @@ export function Player() {
     const onKey = (down: boolean) => (e: KeyboardEvent) => {
       if (down && isTyping(e.target)) return;
       const move = MOVE_KEYS[e.code];
-      if (move) keys.current[move] = down;
-      const lookKey = LOOK_KEYS[e.code];
-      if (lookKey) {
-        keys.current[lookKey] = down;
-        if (useGame.getState().phase === "playing") e.preventDefault();
+      if (move) {
+        keys.current[move] = down;
+        if (e.code.startsWith("Arrow") && useGame.getState().phase === "playing") e.preventDefault();
       }
       if (e.code === "ShiftLeft" || e.code === "ShiftRight") keys.current.run = down;
     };
@@ -122,6 +117,15 @@ export function Player() {
     const onPointerUp = () => {
       drag.active = false;
     };
+    const onWheel = (e: WheelEvent) => {
+      const s = useGame.getState();
+      if (e.ctrlKey || s.phase !== "playing" || s.panel !== null) return;
+      e.preventDefault();
+      const scale = e.deltaMode === 1 ? LINE_HEIGHT_PX : 1;
+      const sens = WHEEL_SENSITIVITY * useSettings.getState().sensitivity;
+      look.current.yaw -= e.deltaX * scale * sens;
+      look.current.pitch = THREE.MathUtils.clamp(look.current.pitch - e.deltaY * scale * sens, -PITCH_LIMIT, PITCH_LIMIT);
+    };
     const onLockChange = () => {
       const locked = document.pointerLockElement === canvas;
       useGame.getState().setPointerLocked(locked);
@@ -139,6 +143,7 @@ export function Player() {
     window.addEventListener("pointerup", onPointerUp);
     window.addEventListener("blur", onBlur);
     canvas.addEventListener("pointerdown", onPointerDown);
+    canvas.addEventListener("wheel", onWheel, { passive: false });
     document.addEventListener("pointerlockchange", onLockChange);
     document.addEventListener("pointerlockerror", onLockError);
 
@@ -164,6 +169,7 @@ export function Player() {
       window.removeEventListener("pointerup", onPointerUp);
       window.removeEventListener("blur", onBlur);
       canvas.removeEventListener("pointerdown", onPointerDown);
+      canvas.removeEventListener("wheel", onWheel);
       document.removeEventListener("pointerlockchange", onLockChange);
       document.removeEventListener("pointerlockerror", onLockError);
       unsub();
@@ -184,16 +190,6 @@ export function Player() {
     const input = v.input.set((k.r ? 1 : 0) - (k.l ? 1 : 0), (k.f ? 1 : 0) - (k.b ? 1 : 0));
     if (!active) input.set(0, 0);
     if (input.lengthSq() > 1) input.normalize();
-
-    if (active) {
-      const sensitivity = useSettings.getState().sensitivity;
-      look.current.yaw += ((k.lookLeft ? 1 : 0) - (k.lookRight ? 1 : 0)) * KEY_TURN_SPEED * sensitivity * dt;
-      look.current.pitch = THREE.MathUtils.clamp(
-        look.current.pitch + ((k.lookUp ? 1 : 0) - (k.lookDown ? 1 : 0)) * KEY_PITCH_SPEED * sensitivity * dt,
-        -PITCH_LIMIT,
-        PITCH_LIMIT,
-      );
-    }
 
     const yaw = look.current.yaw;
     const speed = k.run ? PLAYER.runSpeed : PLAYER.walkSpeed;
