@@ -178,7 +178,9 @@ function ResumeHint() {
   if (locked || panel || phase !== "playing") return null;
   return (
     <div className="pointer-events-none absolute left-1/2 top-[38%] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-black/60 px-4 py-2 text-center text-sm tracking-wide text-white/85">
-      {failed ? "Drag with the mouse, or swipe two fingers on the touchpad, to look while you walk" : "Click to capture the mouse · or drag, or swipe two fingers on the touchpad, to look"}
+      {failed
+        ? "Move the mouse or touchpad to look while you walk · hold the cursor at the screen edge to keep turning"
+        : "Move the mouse or touchpad to look · click the scene for unlimited turning · Esc releases it"}
     </div>
   );
 }

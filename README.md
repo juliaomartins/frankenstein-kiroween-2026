@@ -30,7 +30,7 @@ Other scripts: `npm test` (game-logic unit tests), `npm run typecheck`, `npm run
 
 | Key | Action |
 |---|---|
-| Mouse or touchpad | Look, while you move with the keyboard. Click the scene to capture the mouse (Esc releases it); without capture, drag with the mouse or swipe two fingers on the touchpad |
+| Mouse or touchpad | Look while you move with the keyboard. Just move the pointer to look; click the scene to capture the mouse for unlimited turning (Esc releases it). Without capture, hold the cursor near the left or right edge to keep turning, or swipe two fingers on the touchpad |
 | W A S D or arrow keys | Move (Shift to run) |
 | E | Interact / take / examine |
 | F | Use the equipped tool (operate on the body) |

@@ -27,6 +27,11 @@ const MOUSE_SENSITIVITY = 0.0022;
 const WHEEL_SENSITIVITY = 0.0016;
 const LINE_HEIGHT_PX = 16;
 const PITCH_LIMIT = 1.45;
+/** Without pointer capture, holding the cursor near the left or right edge keeps turning. */
+const EDGE_ZONE = 0.07;
+const EDGE_TURN_SPEED = 1.9;
+const EDGE_BAND_TOP = 0.15;
+const EDGE_BAND_BOTTOM = 0.92;
 
 const NO_KEYS = { f: false, b: false, l: false, r: false, run: false };
 
@@ -52,6 +57,7 @@ export function Player() {
   const keys = useRef({ ...NO_KEYS });
   const look = useRef(playerState.look);
   const velocity = useRef(new THREE.Vector3());
+  const cursor = useRef({ x: 0, y: 0, known: false, inside: false });
   const raycaster = useMemo(() => {
     const r = new THREE.Raycaster();
     r.far = PLAYER.reach;
@@ -92,30 +98,31 @@ export function Player() {
     const keyDown = onKey(true);
     const keyUp = onKey(false);
 
-    const drag = { active: false, x: 0, y: 0 };
+    const lookActive = () => {
+      const s = useGame.getState();
+      return s.phase === "playing" && s.panel === null;
+    };
     const onMouse = (e: MouseEvent) => {
       if (document.pointerLockElement === canvas) {
         turn(e.movementX, e.movementY);
         return;
       }
-      if (!drag.active) return;
-      turn(e.clientX - drag.x, e.clientY - drag.y);
-      drag.x = e.clientX;
-      drag.y = e.clientY;
+      const c = cursor.current;
+      if (c.known && lookActive()) turn(e.clientX - c.x, e.clientY - c.y);
+      c.x = e.clientX;
+      c.y = e.clientY;
+      c.known = true;
+      c.inside = true;
+    };
+    const onLeave = () => {
+      cursor.current.inside = false;
+      cursor.current.known = false;
     };
     const onPointerDown = (e: PointerEvent) => {
       const s = useGame.getState();
-      if (e.button !== 0 || s.phase !== "playing" || s.panel !== null) return;
-      drag.active = true;
-      drag.x = e.clientX;
-      drag.y = e.clientY;
-      if (document.pointerLockElement !== canvas) {
-        const req = canvas.requestPointerLock() as unknown as Promise<void> | undefined;
-        req?.catch?.(() => s.setPointerLockFailed(true));
-      }
-    };
-    const onPointerUp = () => {
-      drag.active = false;
+      if (e.button !== 0 || !lookActive() || document.pointerLockElement === canvas) return;
+      const req = canvas.requestPointerLock() as unknown as Promise<void> | undefined;
+      req?.catch?.(() => s.setPointerLockFailed(true));
     };
     const onWheel = (e: WheelEvent) => {
       const s = useGame.getState();
@@ -127,20 +134,19 @@ export function Player() {
       look.current.pitch = THREE.MathUtils.clamp(look.current.pitch - e.deltaY * scale * sens, -PITCH_LIMIT, PITCH_LIMIT);
     };
     const onLockChange = () => {
-      const locked = document.pointerLockElement === canvas;
-      useGame.getState().setPointerLocked(locked);
-      if (locked) drag.active = false;
+      useGame.getState().setPointerLocked(document.pointerLockElement === canvas);
+      cursor.current.known = false;
     };
     const onLockError = () => useGame.getState().setPointerLockFailed(true);
     const onBlur = () => {
       keys.current = { ...NO_KEYS };
-      drag.active = false;
+      onLeave();
     };
 
     window.addEventListener("keydown", keyDown);
     window.addEventListener("keyup", keyUp);
     window.addEventListener("mousemove", onMouse);
-    window.addEventListener("pointerup", onPointerUp);
+    document.documentElement.addEventListener("mouseleave", onLeave);
     window.addEventListener("blur", onBlur);
     canvas.addEventListener("pointerdown", onPointerDown);
     canvas.addEventListener("wheel", onWheel, { passive: false });
@@ -166,7 +172,7 @@ export function Player() {
       window.removeEventListener("keydown", keyDown);
       window.removeEventListener("keyup", keyUp);
       window.removeEventListener("mousemove", onMouse);
-      window.removeEventListener("pointerup", onPointerUp);
+      document.documentElement.removeEventListener("mouseleave", onLeave);
       window.removeEventListener("blur", onBlur);
       canvas.removeEventListener("pointerdown", onPointerDown);
       canvas.removeEventListener("wheel", onWheel);
@@ -190,6 +196,17 @@ export function Player() {
     const input = v.input.set((k.r ? 1 : 0) - (k.l ? 1 : 0), (k.f ? 1 : 0) - (k.b ? 1 : 0));
     if (!active) input.set(0, 0);
     if (input.lengthSq() > 1) input.normalize();
+
+    const c = cursor.current;
+    if (active && c.inside && document.pointerLockElement !== gl.domElement) {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const zone = w * EDGE_ZONE;
+      if (c.y > h * EDGE_BAND_TOP && c.y < h * EDGE_BAND_BOTTOM) {
+        const push = c.x < zone ? 1 - c.x / zone : c.x > w - zone ? -(1 - (w - c.x) / zone) : 0;
+        look.current.yaw += push * EDGE_TURN_SPEED * useSettings.getState().sensitivity * dt;
+      }
+    }
 
     const yaw = look.current.yaw;
     const speed = k.run ? PLAYER.runSpeed : PLAYER.walkSpeed;
