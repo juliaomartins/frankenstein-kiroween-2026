@@ -6,6 +6,7 @@ import { Bloom, EffectComposer, Noise, Vignette } from "@react-three/postprocess
 import { useState } from "react";
 import * as THREE from "three";
 import { ASSETS } from "../config/assets";
+import { useSettings } from "../state/settingsStore";
 import { Creature } from "./Creature";
 import { Hands } from "./Hands";
 import { Laboratory } from "./Laboratory";
@@ -18,11 +19,13 @@ useGLTF.preload(ASSETS.creature.url);
 useGLTF.preload(ASSETS.hands.url);
 
 export function GameCanvas() {
-  const [quality, setQuality] = useState<"high" | "low">("high");
+  const [autoQuality, setAutoQuality] = useState<"high" | "low">("high");
+  const chosen = useSettings((s) => s.quality);
+  const quality = chosen === "auto" ? autoQuality : chosen;
   return (
     <Canvas
       shadows={{ type: THREE.PCFShadowMap }}
-      dpr={[1, 1.75]}
+      dpr={quality === "low" ? [0.75, 1] : [1, 1.75]}
       camera={{ fov: 72, near: 0.04, far: 60, position: [0, 1.65, 5.5] }}
       gl={{ antialias: false, powerPreference: "high-performance", toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.35 }}
       onCreated={({ scene }) => {
@@ -31,7 +34,7 @@ export function GameCanvas() {
       }}
       className="!fixed inset-0"
     >
-      <PerformanceMonitor onDecline={() => setQuality("low")} />
+      <PerformanceMonitor onDecline={() => setAutoQuality("low")} />
       <AdaptiveDpr pixelated />
       <hemisphereLight args={["#4a5a7a", "#2a1a10", 0.55]} />
       <ambientLight color="#ffd9b0" intensity={0.1} />

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { crackle, heartbeat, roar } from "../audio";
 import { promptFor, useGame } from "../state/gameStore";
+import { useSettings } from "../state/settingsStore";
 import { awakeningClock, awakeningElapsed, TIMELINE } from "./awakening";
 import { findInteractId, interactables } from "./Interactable";
 import { COLLIDERS, PLAYER, ROOM, TABLE } from "./layout";
@@ -72,7 +73,7 @@ export function Player() {
     const keyUp = onKey(false);
     const onMouse = (e: MouseEvent) => {
       if (document.pointerLockElement !== canvas) return;
-      const sens = 0.0022;
+      const sens = 0.0022 * useSettings.getState().sensitivity;
       look.current.yaw -= e.movementX * sens;
       look.current.pitch = THREE.MathUtils.clamp(look.current.pitch - e.movementY * sens, -1.45, 1.45);
     };

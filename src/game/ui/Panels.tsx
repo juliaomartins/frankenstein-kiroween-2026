@@ -10,7 +10,7 @@ import { KeyCap } from "./Hud";
 export function Modal({ title, subtitle, children, onClose, width = "max-w-xl" }: { title: string; subtitle?: string; children: React.ReactNode; onClose: () => void; width?: string }) {
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/55 p-4 backdrop-blur-[2px]" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <section role="dialog" aria-label={title} className={`gothic-frame relative max-h-[90vh] w-full ${width} overflow-y-auto p-6 sm:p-8`}>
+      <section role="dialog" aria-label={title} className={`gothic-frame relative max-h-[90vh] w-full ${width} overflow-y-auto p-6 text-left sm:p-8`}>
         <button type="button" onClick={onClose} className="absolute right-4 top-3 text-2xl text-white/50 transition hover:text-gold" aria-label="Close">
           ×
         </button>

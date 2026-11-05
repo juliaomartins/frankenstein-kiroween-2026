@@ -22,7 +22,7 @@ Add your Anthropic API key to `.env.local` as `ANTHROPIC_API_KEY=...`. Without a
 npm run dev
 ```
 
-Open http://localhost:3000 and click **Enter the laboratory**.
+Open http://localhost:3000 and click **Enter the Laboratory**. The title screen also has **Options** (volume, mouse sensitivity, graphics quality, saved in the browser) and **Credits**.
 
 Other scripts: `npm test` (game-logic unit tests), `npm run typecheck`, `npm run build` then `npm start` (production).
 

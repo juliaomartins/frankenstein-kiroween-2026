@@ -1,92 +1,13 @@
 "use client";
 
-import { useProgress } from "@react-three/drei";
-import { initAudio } from "../audio";
 import { FAILURE_EXPLANATIONS } from "../logic/rules";
 import { useGame } from "../state/gameStore";
-import { KeyCap } from "./Hud";
 import { PrimaryButton } from "./Panels";
 
 function lockPointer() {
   const canvas = document.querySelector("canvas");
   const req = canvas?.requestPointerLock() as unknown as Promise<void> | undefined;
   req?.catch?.(() => undefined);
-}
-
-function LoadStatus() {
-  const { active, progress } = useProgress();
-  const loading = active || progress < 100;
-  return (
-    <p className="mt-3 text-xs tracking-wide text-white/45" aria-live="polite">
-      {loading ? `Preparing the models… ${Math.round(progress)}%` : "The laboratory is ready."}
-    </p>
-  );
-}
-
-export function TitleScreen() {
-  const phase = useGame((s) => s.phase);
-  const start = useGame((s) => s.start);
-  if (phase !== "title") return null;
-  return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-gradient-to-b from-black/70 via-black/50 to-black/85 p-4">
-      <div className="max-w-xl text-center">
-        <p className="font-display text-sm uppercase tracking-[0.5em] text-parchment/70">Ingolstadt · November 1797</p>
-        <h1 className="mt-3 font-display text-5xl font-bold tracking-wide text-parchment drop-shadow-[0_0_25px_rgba(232,182,76,0.35)] sm:text-7xl">Frankenstein</h1>
-        <p className="mt-2 font-display text-xl tracking-[0.3em] text-gold sm:text-2xl">THE CREATOR&apos;S CHOICE</p>
-        <p className="mx-auto mt-6 max-w-md text-[15px] leading-relaxed text-white/75">
-          The storm has come at last. On the table lies the work of two years: a body stitched from the dead. Tonight you will give it life. What it becomes depends on
-          how you make it, and how you treat it.
-        </p>
-        <div className="mt-8 flex justify-center">
-          <PrimaryButton
-            onClick={() => {
-              initAudio();
-              start();
-              lockPointer();
-            }}
-          >
-            Enter the laboratory
-          </PrimaryButton>
-        </div>
-        <LoadStatus />
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-white/60">
-          <span className="flex items-center gap-1.5">
-            <KeyCap>W</KeyCap>
-            <KeyCap>A</KeyCap>
-            <KeyCap>S</KeyCap>
-            <KeyCap>D</KeyCap> move
-          </span>
-          <span className="flex items-center gap-1.5">
-            <KeyCap>E</KeyCap> interact
-          </span>
-          <span className="flex items-center gap-1.5">
-            <KeyCap>F</KeyCap> use tool
-          </span>
-          <span className="flex items-center gap-1.5">
-            <KeyCap wide>Tab</KeyCap> inventory
-          </span>
-          <span className="flex items-center gap-1.5">
-            <KeyCap>C</KeyCap> advisor
-          </span>
-        </div>
-        <p className="mt-4 text-xs text-white/40">Best with headphones. Requires a mouse and keyboard.</p>
-        <p className="mt-2 text-[11px] text-white/35">
-          Creature model:{" "}
-          <a className="underline hover:text-white/70" href="https://sketchfab.com/3d-models/frankenstein-s-monster-0e8d66cb3d4b486b9172f320f70b520f" target="_blank" rel="noreferrer">
-            &ldquo;Frankenstein S Monster&rdquo;
-          </a>{" "}
-          by{" "}
-          <a className="underline hover:text-white/70" href="https://sketchfab.com/samierh49" target="_blank" rel="noreferrer">
-            ennana
-          </a>
-          , licensed{" "}
-          <a className="underline hover:text-white/70" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">
-            CC BY 4.0
-          </a>
-        </p>
-      </div>
-    </div>
-  );
 }
 
 export function CinematicOverlay() {

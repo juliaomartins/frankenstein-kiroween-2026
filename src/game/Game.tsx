@@ -4,7 +4,8 @@ import { GameCanvas } from "./scene/GameCanvas";
 import { AdvisorPanel } from "./ui/AdvisorPanel";
 import { Hud } from "./ui/Hud";
 import { Panels } from "./ui/Panels";
-import { CinematicOverlay, EndingScreen, TitleScreen } from "./ui/Screens";
+import { CinematicOverlay, EndingScreen } from "./ui/Screens";
+import { TitleScreen } from "./ui/TitleScreen";
 import { useGameInput } from "./ui/useGameInput";
 
 export default function Game() {

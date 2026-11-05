@@ -1,6 +1,12 @@
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let noiseBuffer: AudioBuffer | null = null;
+let masterVolume = 0.8;
+
+export function setMasterVolume(volume: number) {
+  masterVolume = Math.min(1, Math.max(0, volume));
+  if (master && ctx) master.gain.setTargetAtTime(masterVolume, ctx.currentTime, 0.05);
+}
 
 function makeNoise(context: AudioContext): AudioBuffer {
   const length = context.sampleRate * 4;
@@ -33,7 +39,7 @@ export function initAudio() {
   if (!AC) return;
   ctx = new AC();
   master = ctx.createGain();
-  master.gain.value = 0.8;
+  master.gain.value = masterVolume;
   master.connect(ctx.destination);
   noiseBuffer = makeNoise(ctx);
 

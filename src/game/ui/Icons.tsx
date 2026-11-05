@@ -74,3 +74,39 @@ export function CheckIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function GearIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" {...base} {...props}>
+      <circle cx="12" cy="12" r="3.2" />
+      <path d="M12 2.5v2.6M12 18.9v2.6M21.5 12h-2.6M5.1 12H2.5M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8M18.7 18.7l-1.8-1.8M7.1 7.1 5.3 5.3" />
+      <circle cx="12" cy="12" r="6.6" />
+    </svg>
+  );
+}
+
+export function BookIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" {...base} {...props}>
+      <path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5Z" />
+      <path d="M12 6.5v13" />
+    </svg>
+  );
+}
+
+export function PowerIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" {...base} {...props}>
+      <path d="M12 3v8" />
+      <path d="M6.4 6.6a8 8 0 1 0 11.2 0" />
+    </svg>
+  );
+}
+
+export function ChevronIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" {...base} strokeWidth={2.4} {...props}>
+      <path d="m9 5 7 7-7 7" />
+    </svg>
+  );
+}
