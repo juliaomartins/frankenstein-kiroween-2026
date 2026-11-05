@@ -7,3 +7,6 @@ next-env.d.ts
 .env.local
 .env*.local
 .claude/misfires.jsonl
+
+# Sketchfab Standard licence: do not redistribute the raw model file
+public/models/player-hands.glb

@@ -1,12 +1,12 @@
 "use client";
 
-import { RoundedBox } from "@react-three/drei";
+import { RoundedBox, useGLTF } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { ASSETS } from "../config/assets";
 import { useGame } from "../state/gameStore";
-import { FittedModel } from "./FittedModel";
+import { applyHandGrip, buildHandRig } from "./handsRig";
 import { playerState } from "./playerState";
 import { useAssetAvailable } from "./useAsset";
 
@@ -76,20 +76,45 @@ function Hand({ side, fingers }: { side: 1 | -1; fingers: React.RefObject<(THREE
   );
 }
 
+interface Grip {
+  left: number;
+  right: number;
+}
+
+function GlbHand({ side, grip }: { side: 1 | -1; grip: React.RefObject<Grip> }) {
+  const gltf = useGLTF(ASSETS.hands.url);
+  const handRig = useMemo(() => buildHandRig(gltf, side), [gltf, side]);
+  useFrame(() => {
+    if (handRig) applyHandGrip(handRig, side > 0 ? grip.current.right : grip.current.left);
+  });
+  if (!handRig) return null;
+  return (
+    <group>
+      <primitive object={handRig.holder} />
+      <mesh position={[0, -0.012, 0.25]} rotation={[Math.PI / 2 - 0.06, 0, 0]} material={sleeveMat}>
+        <cylinderGeometry args={[0.05, 0.06, 0.26, 16]} />
+      </mesh>
+      <mesh position={[0, -0.008, 0.125]} rotation={[Math.PI / 2 - 0.06, 0, 0]} material={cuffMat}>
+        <cylinderGeometry args={[0.042, 0.047, 0.03, 16]} />
+      </mesh>
+    </group>
+  );
+}
+
 export function Hands() {
   const camera = useThree((s) => s.camera);
   const rig = useRef<THREE.Group>(null);
   const left = useRef<THREE.Group>(null);
   const right = useRef<THREE.Group>(null);
-  const both = useRef<THREE.Group>(null);
+  const grip = useRef<Grip>({ left: 0.08, right: 0.08 });
   const leftFingers = useRef<(THREE.Group | null)[]>([]);
   const rightFingers = useRef<(THREE.Group | null)[]>([]);
   const available = useAssetAvailable(ASSETS.hands.url);
   const phase = useGame((s) => s.phase);
   const base = useMemo(
     () => ({
-      left: new THREE.Vector3(-0.22, -0.27, -0.42),
-      right: new THREE.Vector3(0.22, -0.27, -0.42),
+      left: new THREE.Vector3(-0.22, -0.245, -0.42),
+      right: new THREE.Vector3(0.22, -0.245, -0.42),
     }),
     [],
   );
@@ -125,10 +150,8 @@ export function Hands() {
       );
       left.current.rotation.set(0.62 - usePulse * 0.4, -0.22 - usePulse * 0.1, -0.3);
     }
-    if (both.current) {
-      both.current.position.set(sway, breathe + walk + pulse * 0.06, -pulse * 0.14);
-      both.current.rotation.x = -pulse * 0.15;
-    }
+    grip.current.right = 0.08 + pulse * 0.92 + Math.sin(t * 0.9) * 0.03;
+    grip.current.left = 0.08 + (handAction.kind === "use" ? pulse * 0.92 : 0) + Math.sin(t * 0.8 + 1) * 0.03;
     rightFingers.current.forEach((f) => f && (f.rotation.x = -curl));
     const leftCurl = 0.55 + (handAction.kind === "use" ? pulse * 0.7 : 0) + Math.sin(t * 0.8 + 1) * 0.04;
     leftFingers.current.forEach((f) => f && (f.rotation.x = -leftCurl));
@@ -139,8 +162,11 @@ export function Hands() {
       <group visible={phase !== "title"}>
       {available ? (
         <Suspense fallback={null}>
-          <group ref={both}>
-            <FittedModel config={ASSETS.hands} align="center" castShadow={false} />
+          <group ref={left}>
+            <GlbHand side={-1} grip={grip} />
+          </group>
+          <group ref={right}>
+            <GlbHand side={1} grip={grip} />
           </group>
         </Suspense>
       ) : (
@@ -154,7 +180,7 @@ export function Hands() {
         </>
       )}
       </group>
-      <pointLight position={[0, 0.1, -0.3]} intensity={0.25} distance={1.2} color="#ffd8b0" />
+      <pointLight position={[0, 0.12, -0.25]} intensity={0.9} distance={1.1} decay={2} color="#ffd2a6" />
     </group>
   );
 }

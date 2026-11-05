@@ -70,6 +70,7 @@ src/
     │   ├── Creature.tsx       GLB creature (or procedural stand-in) and awakening animation
     │   ├── creatureRig.ts     Skeleton posing: lying, sitting up, reaching, head turn
     │   ├── Hands.tsx          Camera-attached first-person hands with reach/use animations
+    │   ├── handsRig.ts        Orients, mirrors and grip-blends the rigged hand model
     │   ├── Player.tsx         Pointer-lock look, WASD with collision, raycast interaction, ending camera
     │   ├── Storm.tsx          Lightning flashes, bolts, dust
     │   └── GameCanvas.tsx     Canvas, lights, bloom/vignette/noise post-processing
@@ -88,10 +89,11 @@ Stats are never accumulated; they are recomputed from the record of choices (`co
 
 ### 3D models
 
-The creature is `public/models/frankenstein.glb`. It is posed and animated through its skeleton (`src/game/scene/creatureRig.ts`): laid on its back with its arms at its sides, sitting up in the good ending, standing and reaching in the bad one. The first-person hands are still procedural; drop `player-hands.glb` into `public/models/` to replace them (see `public/models/README.md`).
+The creature is `public/models/frankenstein.glb`. It is posed and animated through its skeleton (`src/game/scene/creatureRig.ts`): laid on its back with its arms at its sides, sitting up in the good ending, standing and reaching in the bad one. The first-person hands come from `public/models/player-hands.glb`, which is not in the repository because of its licence: download it from Sketchfab (see `public/models/README.md`). Without it the game uses simple built-in hands.
 
 ## Credits
 
+- First-person hands: ["hands animation"](https://sketchfab.com/3d-models/hands-animation-9f63e924253b4179adb79b117a26d385) by [hugo colauto](https://sketchfab.com/hugocolauto), Sketchfab Standard licence (file not included).
 - Creature model: ["Frankenstein S Monster"](https://sketchfab.com/3d-models/frankenstein-s-monster-0e8d66cb3d4b486b9172f320f70b520f) by [ennana](https://sketchfab.com/samierh49), licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
 ### Performance notes
