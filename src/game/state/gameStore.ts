@@ -60,6 +60,7 @@ interface Store {
   ending: EndingResult | null;
   pointerLocked: boolean;
   pointerLockFailed: boolean;
+  inputMonitor: boolean;
   cinematic: Cinematic;
 
   start: () => void;
@@ -71,6 +72,7 @@ interface Store {
   setHovered: (prompt: Prompt | null) => void;
   setPointerLocked: (locked: boolean) => void;
   setPointerLockFailed: (failed: boolean) => void;
+  toggleInputMonitor: () => void;
   addDistance: (meters: number) => void;
   toast: (text: string) => void;
   dismissToast: (id: number) => void;
@@ -119,6 +121,7 @@ const initialState = {
   ending: null as EndingResult | null,
   pointerLocked: false,
   pointerLockFailed: false,
+  inputMonitor: false,
   cinematic: null as Cinematic,
 };
 
@@ -165,6 +168,7 @@ export const useGame = create<Store>((set, get) => {
     },
     setPointerLocked: (pointerLocked) => set(pointerLocked ? { pointerLocked, pointerLockFailed: false } : { pointerLocked }),
     setPointerLockFailed: (pointerLockFailed) => set({ pointerLockFailed }),
+    toggleInputMonitor: () => set((s) => ({ inputMonitor: !s.inputMonitor })),
     addDistance: (meters) => {
       const before = get().distanceWalked;
       if (before >= EXPLORE_DISTANCE) return;

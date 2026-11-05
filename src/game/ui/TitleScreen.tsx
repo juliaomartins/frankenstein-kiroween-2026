@@ -122,7 +122,7 @@ function KeyHints() {
 }
 
 function OptionsPanel({ onClose }: { onClose: () => void }) {
-  const { volume, sensitivity, quality, update } = useSettings();
+  const { volume, sensitivity, quality, arrowTurn, update } = useSettings();
   const qualities: { value: Quality; label: string }[] = [
     { value: "auto", label: "Auto" },
     { value: "high", label: "High" },
@@ -143,6 +143,15 @@ function OptionsPanel({ onClose }: { onClose: () => void }) {
           <span className="font-mono text-gold">{sensitivity.toFixed(2)}×</span>
         </div>
         <input type="range" min={25} max={250} value={Math.round(sensitivity * 100)} onChange={(e) => update({ sensitivity: Number(e.target.value) / 100 })} className="gothic-range w-full" />
+      </label>
+      <label className="mb-6 flex cursor-pointer items-start gap-3">
+        <input type="checkbox" checked={arrowTurn} onChange={(e) => update({ arrowTurn: e.target.checked })} className="mt-1 h-4 w-4 accent-[#e8b64c]" />
+        <span>
+          <span className="block font-display text-sm uppercase tracking-[0.18em] text-parchment/80">Turn with ← → arrows</span>
+          <span className="block text-xs text-white/55">
+            For laptops that ignore the touchpad while keys are held: ← → turn the view, ↑ ↓ move, A and D still step sideways. Press F2 in game to check what input arrives.
+          </span>
+        </span>
       </label>
       <fieldset className="mb-6">
         <legend className="mb-2 font-display text-sm uppercase tracking-[0.18em] text-parchment/80">Graphics quality</legend>

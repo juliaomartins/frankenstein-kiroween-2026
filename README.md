@@ -31,7 +31,8 @@ Other scripts: `npm test` (game-logic unit tests), `npm run typecheck`, `npm run
 | Key | Action |
 |---|---|
 | Mouse or touchpad | Look while you move with the keyboard. Just move the pointer to look; click the scene to capture the mouse for unlimited turning (Esc releases it). Without capture, hold the cursor near the left or right edge to keep turning, or swipe two fingers on the touchpad |
-| W A S D or arrow keys | Move (Shift to run) |
+| W A S D or arrow keys | Move (Shift to run). Options → "Turn with ← → arrows" makes ← → turn instead, for laptops that ignore the touchpad while keys are held |
+| F2 | Input monitor: shows held keys and whether mouse or touchpad movement is arriving |
 | E | Interact / take / examine |
 | F | Use the equipped tool (operate on the body) |
 | Tab | Inventory |

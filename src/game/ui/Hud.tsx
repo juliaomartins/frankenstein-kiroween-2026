@@ -5,6 +5,7 @@ import { OBJECTIVES } from "../logic/content";
 import { materialsCollected } from "../logic/progress";
 import { THRESHOLDS } from "../logic/rules";
 import { useGame, useObjectives, useStats } from "../state/gameStore";
+import { InputMonitor } from "./InputMonitor";
 import { ArmIcon, BrainIcon, ChatIcon, CheckIcon, DiamondIcon, HandIcon, HeartIcon, MouseIcon } from "./Icons";
 
 export function KeyCap({ children, wide = false }: { children: React.ReactNode; wide?: boolean }) {
@@ -191,6 +192,7 @@ export function Hud() {
   return (
     <div className="pointer-events-none fixed inset-0 select-none">
       <ObjectivePanel />
+      <InputMonitor />
       <AdvisorButton />
       <Crosshair />
       <ResumeHint />

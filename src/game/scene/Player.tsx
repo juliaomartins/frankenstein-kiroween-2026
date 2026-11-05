@@ -9,6 +9,7 @@ import { useSettings } from "../state/settingsStore";
 import { awakeningClock, awakeningElapsed, TIMELINE } from "./awakening";
 import { findInteractId, interactables } from "./Interactable";
 import { COLLIDERS, PLAYER, ROOM, TABLE } from "./layout";
+import { inputStats } from "./inputStats";
 import { playerState } from "./playerState";
 import { stormState } from "./stormState";
 
@@ -33,7 +34,9 @@ const EDGE_TURN_SPEED = 1.9;
 const EDGE_BAND_TOP = 0.15;
 const EDGE_BAND_BOTTOM = 0.92;
 
-const NO_KEYS = { f: false, b: false, l: false, r: false, run: false };
+const ARROW_TURN_SPEED = 2.2;
+
+const NO_KEYS = { f: false, b: false, l: false, r: false, run: false, turnLeft: false, turnRight: false };
 
 function isTyping(target: EventTarget | null): boolean {
   return target instanceof HTMLElement && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
@@ -82,12 +85,20 @@ export function Player() {
     }
 
     const turn = (dx: number, dy: number) => {
+      inputStats.turnedRad += Math.abs(dx) * MOUSE_SENSITIVITY * useSettings.getState().sensitivity;
       const sens = MOUSE_SENSITIVITY * useSettings.getState().sensitivity;
       look.current.yaw -= dx * sens;
       look.current.pitch = THREE.MathUtils.clamp(look.current.pitch - dy * sens, -PITCH_LIMIT, PITCH_LIMIT);
     };
     const onKey = (down: boolean) => (e: KeyboardEvent) => {
       if (down && isTyping(e.target)) return;
+      if (down) inputStats.keysHeld.add(e.code);
+      else inputStats.keysHeld.delete(e.code);
+      if (useSettings.getState().arrowTurn && (e.code === "ArrowLeft" || e.code === "ArrowRight")) {
+        keys.current[e.code === "ArrowLeft" ? "turnLeft" : "turnRight"] = down;
+        if (useGame.getState().phase === "playing") e.preventDefault();
+        return;
+      }
       const move = MOVE_KEYS[e.code];
       if (move) {
         keys.current[move] = down;
@@ -103,6 +114,8 @@ export function Player() {
       return s.phase === "playing" && s.panel === null;
     };
     const onMouse = (e: MouseEvent) => {
+      inputStats.pointerEvents++;
+      inputStats.lastPointerAt = performance.now();
       if (document.pointerLockElement === canvas) {
         turn(e.movementX, e.movementY);
         return;
@@ -125,12 +138,14 @@ export function Player() {
       req?.catch?.(() => s.setPointerLockFailed(true));
     };
     const onWheel = (e: WheelEvent) => {
+      inputStats.wheelEvents++;
       const s = useGame.getState();
       if (e.ctrlKey || s.phase !== "playing" || s.panel !== null) return;
       e.preventDefault();
       const scale = e.deltaMode === 1 ? LINE_HEIGHT_PX : 1;
       const sens = WHEEL_SENSITIVITY * useSettings.getState().sensitivity;
       look.current.yaw -= e.deltaX * scale * sens;
+      inputStats.turnedRad += Math.abs(e.deltaX * scale * sens);
       look.current.pitch = THREE.MathUtils.clamp(look.current.pitch - e.deltaY * scale * sens, -PITCH_LIMIT, PITCH_LIMIT);
     };
     const onLockChange = () => {
@@ -140,6 +155,7 @@ export function Player() {
     const onLockError = () => useGame.getState().setPointerLockFailed(true);
     const onBlur = () => {
       keys.current = { ...NO_KEYS };
+      inputStats.keysHeld.clear();
       onLeave();
     };
 
@@ -196,6 +212,12 @@ export function Player() {
     const input = v.input.set((k.r ? 1 : 0) - (k.l ? 1 : 0), (k.f ? 1 : 0) - (k.b ? 1 : 0));
     if (!active) input.set(0, 0);
     if (input.lengthSq() > 1) input.normalize();
+
+    if (active && (k.turnLeft || k.turnRight)) {
+      const amount = ((k.turnLeft ? 1 : 0) - (k.turnRight ? 1 : 0)) * ARROW_TURN_SPEED * useSettings.getState().sensitivity * dt;
+      look.current.yaw += amount;
+      inputStats.turnedRad += Math.abs(amount);
+    }
 
     const c = cursor.current;
     if (active && c.inside && document.pointerLockElement !== gl.domElement) {

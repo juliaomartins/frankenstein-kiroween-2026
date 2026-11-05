@@ -6,10 +6,12 @@ export interface Settings {
   volume: number;
   sensitivity: number;
   quality: Quality;
+  /** When on, the left and right arrow keys turn the view instead of stepping sideways. */
+  arrowTurn: boolean;
 }
 
 const STORAGE_KEY = "frankenstein.settings";
-const DEFAULTS: Settings = { volume: 0.8, sensitivity: 1, quality: "auto" };
+const DEFAULTS: Settings = { volume: 0.8, sensitivity: 1, quality: "auto", arrowTurn: false };
 
 function load(): Settings {
   try {
@@ -36,7 +38,7 @@ export const useSettings = create<SettingsStore>((set, get) => ({
   ...load(),
   update: (patch) => {
     set(patch);
-    const { volume, sensitivity, quality } = get();
-    save({ volume, sensitivity, quality });
+    const { volume, sensitivity, quality, arrowTurn } = get();
+    save({ volume, sensitivity, quality, arrowTurn });
   },
 }));

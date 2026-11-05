@@ -18,6 +18,11 @@ export function useGameInput() {
         return;
       }
       if (e.code === "Tab") e.preventDefault();
+      if (e.code === "F2") {
+        e.preventDefault();
+        if (!e.repeat) s.toggleInputMonitor();
+        return;
+      }
       if (isTyping(e.target) || e.repeat || s.phase !== "playing") return;
 
       switch (e.code) {
