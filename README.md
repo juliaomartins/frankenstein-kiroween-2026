@@ -89,11 +89,11 @@ Stats are never accumulated; they are recomputed from the record of choices (`co
 
 ### 3D models
 
-The creature is `public/models/frankenstein.glb`. It is posed and animated through its skeleton (`src/game/scene/creatureRig.ts`): laid on its back with its arms at its sides, sitting up in the good ending, standing and reaching in the bad one. The first-person hands come from `public/models/player-hands.glb`, which is not in the repository because of its licence: download it from Sketchfab (see `public/models/README.md`). Without it the game uses simple built-in hands.
+The creature is `public/models/frankenstein.glb`. It is posed and animated through its skeleton (`src/game/scene/creatureRig.ts`): laid on its back with its arms at its sides, sitting up in the good ending, standing and reaching in the bad one. The first-person hands are `public/models/player-hands.glb`, oriented, mirrored and grip-animated by `src/game/scene/handsRig.ts`. If the file is removed the game falls back to simple built-in hands.
 
 ## Credits
 
-- First-person hands: ["hands animation"](https://sketchfab.com/3d-models/hands-animation-9f63e924253b4179adb79b117a26d385) by [hugo colauto](https://sketchfab.com/hugocolauto), Sketchfab Standard licence (file not included).
+- First-person hands: ["hands animation"](https://sketchfab.com/3d-models/hands-animation-9f63e924253b4179adb79b117a26d385) by [hugo colauto](https://sketchfab.com/hugocolauto), Sketchfab Standard licence.
 - Creature model: ["Frankenstein S Monster"](https://sketchfab.com/3d-models/frankenstein-s-monster-0e8d66cb3d4b486b9172f320f70b520f) by [ennana](https://sketchfab.com/samierh49), licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
 ### Performance notes

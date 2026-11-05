@@ -5,7 +5,7 @@ Put the downloaded Sketchfab `.glb` files here with these exact names:
 | File | Source |
 |---|---|
 | `frankenstein.glb` | Included. "Frankenstein S Monster" by ennana (https://sketchfab.com/3d-models/frankenstein-s-monster-0e8d66cb3d4b486b9172f320f70b520f), CC BY 4.0 |
-| `player-hands.glb` | Not committed. "hands animation" by hugo colauto (https://sketchfab.com/3d-models/hands-animation-9f63e924253b4179adb79b117a26d385), Sketchfab Standard licence, which does not allow redistributing the file. Download it from Sketchfab and save it here under this name. |
+| `player-hands.glb` | Included. "hands animation" by hugo colauto (https://sketchfab.com/3d-models/hands-animation-9f63e924253b4179adb79b117a26d385), Sketchfab Standard licence |
 | `laboratory/` | Optional extra lab props |
 
 Until a file is present the game draws a procedural stand-in, so it runs either way.
