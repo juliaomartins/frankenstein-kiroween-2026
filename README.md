@@ -89,7 +89,7 @@ Stats are never accumulated; they are recomputed from the record of choices (`co
 
 ### 3D models
 
-The creature is `public/models/frankenstein.glb`. It is posed and animated through its skeleton (`src/game/scene/creatureRig.ts`): laid on its back with its arms at its sides, sitting up in the good ending, standing and reaching in the bad one. The first-person hands are the built-in procedural ones. The rigged hands model is included as `public/models/player-hands.glb` but switched off; set `enabled: true` on `hands` in `src/game/config/assets.ts` to use it (`src/game/scene/handsRig.ts` orients, mirrors and grip-animates it).
+The creature is `public/models/frankenstein.glb`. It is posed and animated through its skeleton (`src/game/scene/creatureRig.ts`): laid on its back with its arms at its sides, sitting up in the good ending, standing and reaching in the bad one. The first-person hands are `public/models/player-hands.glb`, oriented, mirrored for the left hand and grip-animated by `src/game/scene/handsRig.ts`.
 
 ## Credits
 

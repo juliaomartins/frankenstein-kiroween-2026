@@ -2,8 +2,6 @@ export type Vec3 = [number, number, number];
 
 export interface ModelConfig {
   url: string;
-  /** Set to false to ignore the file and use the built-in procedural version. */
-  enabled?: boolean;
   /** Largest bounding-box dimension the model is scaled to, in metres. */
   fitSize: number;
   /** Rotation applied before fitting, in radians. */
@@ -13,8 +11,8 @@ export interface ModelConfig {
 }
 
 /**
- * Drop the downloaded Sketchfab .glb files into public/models/ under these names.
- * Until a file exists the game renders a procedural stand-in, so the game runs either way.
+ * Model files live in public/models/. The creature falls back to a procedural stand-in if its file is missing;
+ * the first-person hands always come from player-hands.glb.
  * If a model shows up lying the wrong way, adjust `rotation` here; scale is fitted automatically.
  */
 export const ASSETS = {
@@ -26,7 +24,6 @@ export const ASSETS = {
   } satisfies ModelConfig,
   hands: {
     url: "/models/player-hands.glb",
-    enabled: false,
     fitSize: 0.85,
     rotation: [0, Math.PI, 0],
     offset: [0, -0.32, -0.45],
